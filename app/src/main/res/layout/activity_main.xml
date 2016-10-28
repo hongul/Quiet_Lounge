@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/refresh_btn_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="refreshData"
+            android:text="Refresh"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/heatMap_btn_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="heatMap"
+            android:text="Heat Map"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/addData_btn_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addData"
+            android:text="Add Data"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+
+    <TableLayout
+        android:id="@+id/tableLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:shrinkColumns="*"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:id="@+id/row1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/row1_tv1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#252728"
+                android:gravity="center"
+                android:text="Lounge"
+                android:textColor="#d6dce2"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/row1_tv2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#4b4e50"
+                android:gravity="center"
+                android:text="Noise Level"
+                android:textColor="#d8d9da"
+                android:textSize="30sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/row2_tv1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#0004ff"
+                android:gravity="center"
+                android:text="Student Center"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/row2_tv2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#ff0d00"
+                android:gravity="center"
+                android:text="60 dB"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row3"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/row3_tv1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#001aff"
+                android:gravity="center"
+                android:text="Paley Library"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/row3_tv2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#53e200"
+                android:gravity="center"
+                android:text="35 dB"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row4"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/row4_tv1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#001aff"
+                android:gravity="center"
+                android:text="SERC"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/row4_tv2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#ff0400"
+                android:gravity="center"
+                android:text="46 dB"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row5"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/row5_tv1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#001aff"
+                android:gravity="center"
+                android:text="Wachman Hall"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/row5_tv2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#53e200"
+                android:gravity="center"
+                android:text="32 dB"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row6"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/row6_tv1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#001aff"
+                android:gravity="center"
+                android:text="Tech Center"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/row6_tv2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:background="#00fa00"
+                android:gravity="center"
+                android:text="43 dB"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+
+        </TableRow>
+
+    </TableLayout>
+
+
+</LinearLayout>
