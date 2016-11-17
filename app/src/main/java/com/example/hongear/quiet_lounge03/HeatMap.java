@@ -3,15 +3,16 @@ package com.example.hongear.quiet_lounge03;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
@@ -22,14 +23,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Date;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -56,6 +59,12 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient mGoogleApiClient;
+    private LocationInfo locationInfo;      // Holds info about current phone location and sound level
+    private RequestQueue queue;             // Sends the HTTP requests to the web server
+    private JsonRequestFactory jsonRequestFactory;
+    private int timeBetweenRequests;
+
+
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
@@ -64,6 +73,29 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heat_map);
+
+        // Access resources to get static value
+        timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
+
+        // Set up queue to send HTTP request
+        queue = Volley.newRequestQueue(this);
+
+        // Temporary Object to hold location info from phone
+        locationInfo = new LocationInfo();
+
+        // Creates jsonRequests
+        jsonRequestFactory = new JsonRequestFactory(this);
+
+        // Create Timer to Constantly send new sound Data
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+//                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
+                queue.add(jsonRequestFactory.getLoungeData());
+            }
+        }, new Date(), timeBetweenRequests);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -104,6 +136,8 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
                 .tilt(30)
                 .build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
 
         mWachman = mMap.addMarker(new MarkerOptions()
                 .position(WACHMAN)
@@ -294,7 +328,10 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
-
+        locationInfo.setLat(location.getLatitude());
+        locationInfo.setLng(location.getLongitude());
+        Log.d("Update", "Location Updated");
+        Log.d("New Coordinates", "Lat: " + locationInfo.getLat() + " Lng: " + locationInfo.getLng());
     }
 
     @Override

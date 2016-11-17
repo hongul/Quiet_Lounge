@@ -14,45 +14,51 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * This is the main activity of the the application. Displays the sound data collected from the
+ * web server. Shows the name of each of the lounges and the cooresponding sound levels. These
+ * values are being updated every specified interval (TIME_BETWEEN_HTTP_REQUESTS). In the
+ * background, this activity is also constantly sending its current location and ambient sound
+ * levels to the server.
+ */
 public class MainActivity extends AppCompatActivity {
 
+    // Constants
     private final String TAG = "DecibelTest";
     public static double REFERENCE = 0.00002;
-    private final static String GET_URL = "http://quietlounge.us-east-1.elasticbeanstalk.com/getLoungeData";
-    private final static String POST_URL = "http://quietlounge.us-east-1.elasticbeanstalk.com/inputSound";
-    private final static int TIME_BETWEEN_HTTP_REQUESTS = 2000;
-    private double sound;
-    private LocationInfo locationInfo;
-    private RequestQueue queue;
-    private JSONObject loungeResponseData;
+
+    // Fields
+    private double sound;                   // Decibel Level
+    private LocationInfo locationInfo;      // Holds info about current phone location and sound level
+    private RequestQueue queue;             // Sends the HTTP requests to the web server
+    private int timeBetweenRequests;
+    private JsonRequestFactory jsonRequestFactory;      // Generates HTTP request
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Access resources to get static value
+        timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
+
+        // Set up queue to send HTTP request
         queue = Volley.newRequestQueue(this);
+
+        // Temporary Object to hold location info from phone
         locationInfo = new LocationInfo();
+
+        // Creates jsonRequests
+        jsonRequestFactory = new JsonRequestFactory(this);
 
         // Runtime permission requests - SDK 23 or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -64,30 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Code needed to get Latitude and Longitude coordinates of phone
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                locationInfo.setLat(location.getLatitude());
-                locationInfo.setLng(location.getLongitude());
-                Log.d("Update", "Location Updated");
-                Log.d("New Coordinates", "Lat: " + locationInfo.getLat() + " Lng: " + locationInfo.getLng());
-            }
-
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-
-            }
-        };
+        LocationListener locationListener = setUpLocationListener();
 
         // Gets the Coordinates from phone, if it has permissions
         try {
@@ -102,19 +85,26 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-//                locationInfo.setSound(getNoiseLevel());
-                queue.add(insertSoundData(locationInfo));        // Use with emulator
-                queue.add(getLoungeData());
+//                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
+                queue.add(jsonRequestFactory.getLoungeData(true));
             }
-        }, new Date(), TIME_BETWEEN_HTTP_REQUESTS);
+        }, new Date(), timeBetweenRequests);
     }
 
-
+    /**
+     * Listen for "Refresh" button click. Maunally refreshes the sound data
+     * @param view - The view object that was pressed
+     */
     public void refreshData(View view) {
         Log.d("get Data", "Pressed Refresh");
-        queue.add(getLoungeData());
+        queue.add(jsonRequestFactory.getLoungeData(true));
     }
 
+    /**
+     * Listen for "Refresh" button click. Opens up Heat Map Activity
+     * @param view - The view object that was pressed
+     */
     public void heatMap(View view) {
         Toast.makeText(this, "switching view...", Toast.LENGTH_SHORT).show();
         Intent homeIntent = new Intent(MainActivity.this, HeatMap.class);
@@ -122,108 +112,45 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    public JsonObjectRequest insertSoundData(final LocationInfo local) {
-
-        final JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, POST_URL, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            String responseMsg = response.getString("msg");
-                            Log.d("API Response", "Response Message: " + responseMsg);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+    /**
+     * Returns the location listener for the phone. Whenever the location of the device
+     * changes it updates the LocationInfo object to the current location of the phone.
+     *
+     * @return LocationListener that updates LocationInfo to current latitude and longitude coords
+     */
+    public LocationListener setUpLocationListener() {
+        return new LocationListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        })
-        {
-            @Override
-            public String getBodyContentType() {
-                return "application/x-www-form-urlencoded; charset=UTF-8";
+            public void onLocationChanged(Location location) {
+                locationInfo.setLat(location.getLatitude());
+                locationInfo.setLng(location.getLongitude());
+                Log.d("Update", "Location Updated");
+                Log.d("New Coordinates", "Lat: " + locationInfo.getLat() + " Lng: " + locationInfo.getLng());
             }
 
             @Override
-            public byte[] getBody() {
-                try {
-                    String bodyStr;
-//                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + local.getSound();
-                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + String.valueOf(Math.random() * 30);
-                    return bodyStr.getBytes("UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                    return null;
-                }
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
             }
         };
-
-        return request;
     }
 
-    @SuppressWarnings("unused")
-    public JsonObjectRequest getLoungeData() {
-        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, GET_URL,
-                null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-
-                    JSONArray dataJsonArray = response.getJSONArray("lounges");
-                    JSONObject data;
-                    TextView textView;
-                    String soundLevel;
-                    DecimalFormat df = new DecimalFormat("#.###");
-
-                    // Update Data for SERC [0]
-                    data = dataJsonArray.getJSONObject(0);
-                    textView = (TextView) findViewById(R.id.serc_data);
-                    soundLevel = df.format(data.getDouble("lastSoundLevel"));
-                    textView.setText(soundLevel);
-
-                    // Update Data for Tech Center [1]
-                    data = dataJsonArray.getJSONObject(1);
-                    textView = (TextView) findViewById(R.id.tech_data);
-                    soundLevel = df.format(data.getDouble("lastSoundLevel"));
-                    textView.setText(soundLevel);
-
-                    // Update Data for Student Center [2]
-                    data = dataJsonArray.getJSONObject(2);
-                    textView = (TextView) findViewById(R.id.student_center_data);
-                    soundLevel = df.format(data.getDouble("lastSoundLevel"));
-                    textView.setText(soundLevel);
-
-                    // Update Data for Library [3]
-                    data = dataJsonArray.getJSONObject(3);
-                    textView = (TextView) findViewById(R.id.library_data);
-                    soundLevel = df.format(data.getDouble("lastSoundLevel"));
-                    textView.setText(soundLevel);
-
-                    // Update Data for Wachman Hall [4]
-                    data = dataJsonArray.getJSONObject(4);
-                    textView = (TextView) findViewById(R.id.wachman_data);
-                    soundLevel = df.format(data.getDouble("lastSoundLevel"));
-                    textView.setText(soundLevel);
-
-                    Log.d("Update Sound levels","Updated");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        return getRequest;
-    }
-
+    /**
+     * Access the devices microphone and generates the current decibel levels from the devices
+     * surroundings
+     *
+     * @return The decibel level of the phones surroundings
+     */
     public double getNoiseLevel() {
         Log.e(TAG, "start new recording process");
         int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);

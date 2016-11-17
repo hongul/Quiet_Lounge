@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer-array name="LoungeDataIds">
+        <item>@id/serc_data</item>
+        <item>@id/tech_data</item>
+        <item>@id/student_center_data</item>
+        <item>@id/library_data</item>
+        <item>@id/wachman_data</item>
+    </integer-array>
+    <integer name="TimeBetweenRequests">2000</integer>
+
+</resources>
