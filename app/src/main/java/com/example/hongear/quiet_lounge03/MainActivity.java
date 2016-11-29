@@ -11,6 +11,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.multidex.MultiDex;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -44,6 +45,12 @@ public class MainActivity extends AppCompatActivity {
     private JsonRequestFactory jsonRequestFactory;      // Generates HTTP request
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        MultiDex.install(this);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -69,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Code needed to get Latitude and Longitude coordinates of phone
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = setUpLocationListener();
+        final LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        final LocationListener locationListener = setUpLocationListener();
 
         // Gets the Coordinates from phone, if it has permissions
         try {
@@ -85,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-//                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                Log.d("Location", "Lat: " + locationInfo.getLat() + "Lng: " + locationInfo.getLng());
+                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
                 queue.add(jsonRequestFactory.insertSoundData(locationInfo));
                 queue.add(jsonRequestFactory.getLoungeData(true));
             }
@@ -120,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public LocationListener setUpLocationListener() {
         return new LocationListener() {
+
+
+
             @Override
             public void onLocationChanged(Location location) {
                 locationInfo.setLat(location.getLatitude());
