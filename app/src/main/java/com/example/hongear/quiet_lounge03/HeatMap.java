@@ -92,8 +92,8 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void run() {
 //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
-                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
-                queue.add(jsonRequestFactory.getLoungeData());
+//                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
+                queue.add(jsonRequestFactory.getLoungeData(false));
             }
         }, new Date(), timeBetweenRequests);
 
