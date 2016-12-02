@@ -1,6 +1,7 @@
 package com.example.hongear.quiet_lounge03;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,10 +26,17 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.Timer;
@@ -38,7 +46,7 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private GoogleMap mMap;
+    private static GoogleMap mMap;
 
     private Marker mAlter;
     private Marker mPaley;
@@ -46,6 +54,7 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     private Marker mTech;
     private Marker mStudent;
     private Marker mWachman;
+    private static Marker[] mArray;
 
     private static final LatLng ALTER = new LatLng(39.9802845, -75.158018);
     private static final LatLng PALEY = new LatLng(39.9811121,-75.1550743);
@@ -53,6 +62,7 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     private static final LatLng TECH = new LatLng(39.9799703, -75.1533075);
     private static final LatLng STUDENT = new LatLng(39.9795807, -75.1552941);
     private static final LatLng WACHMAN = new LatLng(39.9809148,-75.1569864);
+    private static  LatLng[] LOCATION;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -73,6 +83,10 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heat_map);
+
+        // Fill in array of makers
+        mArray = new Marker[]{mSerc, mTech, mStudent, mPaley, mWachman};
+        LOCATION = new LatLng[]{SERC, TECH, STUDENT, PALEY, WACHMAN};
 
         // Access resources to get static value
         timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
@@ -137,13 +151,17 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
                 .build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+        Circle cir = mMap.addCircle(new CircleOptions()
+                .center(WACHMAN)
+                .radius(5.00)
+                .fillColor(Color.BLUE));
 
-
-        mWachman = mMap.addMarker(new MarkerOptions()
-                .position(WACHMAN)
-                .title("Wachman Hall")
-                .snippet("36 dB")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//
+//        mWachman = mMap.addMarker(new MarkerOptions()
+//                .position(WACHMAN)
+//                .title("Wachman Hall")
+//                .snippet("36 dB")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         //mWachman.showInfoWindow();
 
         mPaley = mMap.addMarker(new MarkerOptions()
@@ -336,6 +354,29 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    public static void updateMapPoints(JSONObject response) throws JSONException {
+        JSONArray dataJsonArray = response.getJSONArray("lounges");
+        JSONObject data;
+        String soundLevel;
+        DecimalFormat df = new DecimalFormat("#.###");
+
+//        for (int i = 0; i < dataJsonArray.length(); i++) {
+//            data = dataJsonArray.getJSONObject(i);
+//            mArray[i] = mMap.addMarker(new MarkerOptions()
+//                    .position(LOCATION[i])
+//                    .title(LOCATION[i].toString())
+//                    .snippet(df.format(data.getDouble("lastSoundLevel")) +" dB")
+//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+//                    .visible(true));
+//            mArray[i].hideInfoWindow();
+//            mArray[i].showInfoWindow();
+//            Log.d("marker", LOCATION[i].toString());
+//        }
+
+        Log.d("Heat Map", "updated");
 
     }
 }

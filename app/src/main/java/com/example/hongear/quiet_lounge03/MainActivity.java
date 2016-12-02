@@ -3,6 +3,7 @@ package com.example.hongear.quiet_lounge03;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -12,6 +13,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.multidex.MultiDex;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +33,11 @@ import java.util.TimerTask;
  * background, this activity is also constantly sending its current location and ambient sound
  * levels to the server.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
+
+    //TODO Redo UI
+    //TODO Implement Google HeatMap Util
+    //TODO Create Batch Program for testing
 
     // Constants
     private final String TAG = "DecibelTest";
@@ -43,11 +49,27 @@ public class MainActivity extends AppCompatActivity {
     private RequestQueue queue;             // Sends the HTTP requests to the web server
     private int timeBetweenRequests;
     private JsonRequestFactory jsonRequestFactory;      // Generates HTTP request
+    private Timer timer;
+    private TimerTask timerTask, insertingSound;
 
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(newBase);
         MultiDex.install(this);
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d("pause", "----------------------- main paused ------------------");
+        timerTask.cancel();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d("resume", "---------------------- main resumed ------------------");
+        timerTask.run();
+        super.onResume();
     }
 
     @Override
@@ -67,12 +89,16 @@ public class MainActivity extends AppCompatActivity {
         // Creates jsonRequests
         jsonRequestFactory = new JsonRequestFactory(this);
 
-        // Runtime permission requests - SDK 23 or higher
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Runtime permission requests - SDK 23 or higher
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+            }
         }
 
         // Code needed to get Latitude and Longitude coordinates of phone
@@ -88,16 +114,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Create Timer to Constantly send new sound Data
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        timer = new Timer();
+        timerTask = new TimerTask() {
             @Override
             public void run() {
                 Log.d("Location", "Lat: " + locationInfo.getLat() + "Lng: " + locationInfo.getLng());
-                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
-                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
                 queue.add(jsonRequestFactory.getLoungeData(true));
             }
-        }, new Date(), timeBetweenRequests);
+        };
+
+        insertingSound = new TimerTask() {
+            @Override
+            public void run() {
+                //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
+            }
+        };
+
+        timer.schedule(timerTask, new Date(), timeBetweenRequests);
+        timer.schedule(insertingSound, new Date(), timeBetweenRequests);
     }
 
     /**
@@ -115,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void heatMap(View view) {
         Toast.makeText(this, "switching view...", Toast.LENGTH_SHORT).show();
-        Intent homeIntent = new Intent(MainActivity.this, HeatMap.class);
+        Intent homeIntent = new Intent(this, HeatMap.class);
         startActivity(homeIntent);
         finish();
     }

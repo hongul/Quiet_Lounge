@@ -71,8 +71,8 @@ public class JsonRequestFactory {
             public byte[] getBody() {
                 try {
                     String bodyStr;
-                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + local.getSound();      // Use with phone
-//                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + String.valueOf(Math.random() * 30); // Use only with emulator
+//                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + local.getSound();      // Use with phone
+                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + String.valueOf(Math.random() * 30); // Use only with emulator
                     return bodyStr.getBytes("UTF-8");
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -96,8 +96,9 @@ public class JsonRequestFactory {
                 try {
                     if (main)
                         updateSoundLevels(response);
-                    else
-                        updateHeatMap(response);
+                    else {
+                        HeatMap.updateMapPoints(response);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -126,9 +127,5 @@ public class JsonRequestFactory {
             soundLevel = df.format(data.getDouble("lastSoundLevel"));
             textView.setText(soundLevel);
         }
-    }
-
-    public void updateHeatMap(JSONObject response) throws JSONException {
-        // TODO Update Heat Map Markers with data from response
     }
 }
