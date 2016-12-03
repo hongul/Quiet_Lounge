@@ -2,7 +2,6 @@ package com.example.hongear.quiet_lounge03;
 
 import android.app.Activity;
 import android.content.res.TypedArray;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -25,8 +24,8 @@ public class JsonRequestFactory {
 
     private final static String GET_URL = "http://quietlounge.us-east-1.elasticbeanstalk.com/getLoungeData";
     private final static String POST_URL = "http://quietlounge.us-east-1.elasticbeanstalk.com/inputSound";
-    private Activity activity;
-    private TypedArray loungeIds;           // Resource IDs for views that hold the sound data
+    private final Activity activity;
+    private final TypedArray loungeIds;           // Resource IDs for views that hold the sound data
 
     public JsonRequestFactory(Activity activity) {
         this.activity = activity;
@@ -49,8 +48,8 @@ public class JsonRequestFactory {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            String responseMsg = response.getString("msg");
-                            Log.d("API Response", "Response Message: " + responseMsg);
+                            @SuppressWarnings("UnusedAssignment") String responseMsg = response.getString("msg");
+//                            Log.d("API Response", "Response Message: " + responseMsg);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -89,7 +88,7 @@ public class JsonRequestFactory {
      * @return The JsonObjectRequest with updated sound data
      */
     public JsonObjectRequest getLoungeData(final boolean main) {
-        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, GET_URL,
+        return new JsonObjectRequest(Request.Method.GET, GET_URL,
                 null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -97,7 +96,8 @@ public class JsonRequestFactory {
                     if (main)
                         updateSoundLevels(response);
                     else {
-                        HeatMap.updateMapPoints(response);
+                        HeatMapUpdaterInterface heatMapUpdaterInterface = (HeatMapUpdaterInterface) activity;
+                        heatMapUpdaterInterface.updateHeatMap(response);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -110,11 +110,9 @@ public class JsonRequestFactory {
 
             }
         });
-
-        return getRequest;
     }
 
-    public void updateSoundLevels(JSONObject response) throws JSONException {
+    private void updateSoundLevels(JSONObject response) throws JSONException {
         JSONArray dataJsonArray = response.getJSONArray("lounges");
         JSONObject data;
         TextView textView;
@@ -127,5 +125,9 @@ public class JsonRequestFactory {
             soundLevel = df.format(data.getDouble("lastSoundLevel"));
             textView.setText(soundLevel);
         }
+    }
+
+    public interface HeatMapUpdaterInterface {
+        void updateHeatMap(JSONObject response) throws JSONException;
     }
 }

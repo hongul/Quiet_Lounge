@@ -8,6 +8,6 @@
         <item>@id/library_data</item>
         <item>@id/wachman_data</item>
     </integer-array>
-    <integer name="TimeBetweenRequests">2000</integer>
+    <integer name="TimeBetweenRequests">5000</integer>
 
 </resources>

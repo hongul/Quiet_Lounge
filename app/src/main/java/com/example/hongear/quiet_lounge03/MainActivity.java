@@ -1,6 +1,7 @@
 package com.example.hongear.quiet_lounge03;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,9 +13,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.multidex.MultiDex;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -33,41 +32,31 @@ import java.util.TimerTask;
  * background, this activity is also constantly sending its current location and ambient sound
  * levels to the server.
  */
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends Activity {
 
     //TODO Redo UI
-    //TODO Implement Google HeatMap Util
     //TODO Create Batch Program for testing
 
-    // Constants
-    private final String TAG = "DecibelTest";
-    public static double REFERENCE = 0.00002;
+    private static final double REFERENCE = 0.00002;
 
-    // Fields
-    private double sound;                   // Decibel Level
     private LocationInfo locationInfo;      // Holds info about current phone location and sound level
     private RequestQueue queue;             // Sends the HTTP requests to the web server
-    private int timeBetweenRequests;
     private JsonRequestFactory jsonRequestFactory;      // Generates HTTP request
-    private Timer timer;
-    private TimerTask timerTask, insertingSound;
+    private TimerTask timerTask;
 
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
-        MultiDex.install(this);
-    }
+//    @Override
+//    protected void attachBaseContext(Context newBase) {
+//        super.attachBaseContext(newBase);
+//    }
 
     @Override
     protected void onPause() {
-        Log.d("pause", "----------------------- main paused ------------------");
         timerTask.cancel();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        Log.d("resume", "---------------------- main resumed ------------------");
         timerTask.run();
         super.onResume();
     }
@@ -78,7 +67,7 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         // Access resources to get static value
-        timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
+        int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
 
         // Set up queue to send HTTP request
         queue = Volley.newRequestQueue(this);
@@ -90,7 +79,7 @@ public class MainActivity extends AppCompatActivity{
         jsonRequestFactory = new JsonRequestFactory(this);
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                PackageManager.PERMISSION_GRANTED ||  ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Runtime permission requests - SDK 23 or higher
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -114,25 +103,18 @@ public class MainActivity extends AppCompatActivity{
         }
 
         // Create Timer to Constantly send new sound Data
-        timer = new Timer();
+        Timer timer = new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run() {
                 Log.d("Location", "Lat: " + locationInfo.getLat() + "Lng: " + locationInfo.getLng());
+                //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
                 queue.add(jsonRequestFactory.getLoungeData(true));
             }
         };
 
-        insertingSound = new TimerTask() {
-            @Override
-            public void run() {
-                //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
-                queue.add(jsonRequestFactory.insertSoundData(locationInfo));
-            }
-        };
-
         timer.schedule(timerTask, new Date(), timeBetweenRequests);
-        timer.schedule(insertingSound, new Date(), timeBetweenRequests);
     }
 
     /**
@@ -149,8 +131,8 @@ public class MainActivity extends AppCompatActivity{
      * @param view - The view object that was pressed
      */
     public void heatMap(View view) {
-        Toast.makeText(this, "switching view...", Toast.LENGTH_SHORT).show();
-        Intent homeIntent = new Intent(this, HeatMap.class);
+        Toast.makeText(this, "Opening Heatmap", Toast.LENGTH_SHORT).show();
+        Intent homeIntent = new Intent(this, HeatMapFullscreenActivity.class);
         startActivity(homeIntent);
         finish();
     }
@@ -161,10 +143,8 @@ public class MainActivity extends AppCompatActivity{
      *
      * @return LocationListener that updates LocationInfo to current latitude and longitude coords
      */
-    public LocationListener setUpLocationListener() {
+    private LocationListener setUpLocationListener() {
         return new LocationListener() {
-
-
 
             @Override
             public void onLocationChanged(Location location) {
@@ -198,6 +178,7 @@ public class MainActivity extends AppCompatActivity{
      * @return The decibel level of the phones surroundings
      */
     public double getNoiseLevel() {
+        String TAG = "DecibelTest";
         Log.e(TAG, "start new recording process");
         int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
         //making the buffer bigger....
@@ -225,7 +206,7 @@ public class MainActivity extends AppCompatActivity{
         Log.e(TAG, "" + x);
         recorder.release();
         Log.d(TAG, "getNoiseLevel() ");
-        double db = 0;
+        double db;
         if (x == 0) {
             Log.e(TAG, "No valid noise level");
         }
