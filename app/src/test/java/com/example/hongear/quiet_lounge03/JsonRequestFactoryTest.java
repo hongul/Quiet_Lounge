@@ -3,8 +3,6 @@ package com.example.hongear.quiet_lounge03;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by TheFoxx on 12/3/16.
  */

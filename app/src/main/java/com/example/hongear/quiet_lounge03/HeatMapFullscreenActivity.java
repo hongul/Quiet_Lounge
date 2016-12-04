@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,13 +23,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
+import com.google.maps.android.ui.IconGenerator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,8 +44,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-//TODO Add Labels for Heatmap "spots"
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -144,7 +147,7 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         setContentView(R.layout.activity_heat_map_fullscreen);
 
         mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
+//        mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.map_view);
 
 
@@ -159,10 +162,10 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         // Access resources to get static value
-        int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
+        int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequestsMap);
 
         queue = Volley.newRequestQueue(this);
 
@@ -172,11 +175,11 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         // Temporary Object to hold location info from phone
         locationInfo = new LocationInfo();
 
+        // Creates and loads the Google Map
         MapFragment mapFragment = MapFragment.newInstance();
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.map_view, mapFragment);
         fragmentTransaction.commit();
-        Log.d("mapFragment", mapFragment.toString());
         mapFragment.getMapAsync(this);
 
         // Code needed to get Latitude and Longitude coordinates of phone
@@ -191,11 +194,12 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
             e.printStackTrace();
         }
 
+        // The timer to repeat request to web server
         Timer timer = new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                Log.d("Location", "Lat: " + locationInfo.getLat() + "Lng: " + locationInfo.getLng());
+                Log.d("Location", "Lat: " + locationInfo.getLat() + " Lng: " + locationInfo.getLng());
                 //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
                 queue.add(jsonRequestFactory.insertSoundData(locationInfo));
                 queue.add(jsonRequestFactory.getLoungeData(false));
@@ -203,16 +207,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         };
 
         timer.schedule(timerTask, new Date(), timeBetweenRequests);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
     }
 
     private void toggle() {
@@ -229,7 +223,7 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         if (actionBar != null) {
             actionBar.hide();
         }
-        mControlsView.setVisibility(View.GONE);
+        //mControlsView.setVisibility(View.GONE);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
@@ -270,19 +264,21 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         uiSettings = googleMap.getUiSettings();
 
         uiSettings.setAllGesturesEnabled(false);
-//        uiSettings.setRotateGesturesEnabled(true);
+        uiSettings.setCompassEnabled(false);
+        uiSettings.setMapToolbarEnabled(false);
 
         LatLng temple = new LatLng(39.980682, -75.154814);
-        //mMap.addMarker(new MarkerOptions().position(temple).title("Marker in Temple U"));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(temple));
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(temple)
                 .zoom(17)
-                .bearing(260)
+                .bearing(245)
                 .tilt(25)
                 .build();
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        queue.add(jsonRequestFactory.getLoungeCoords());
     }
 
     @Override
@@ -345,12 +341,36 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         }
 
         // Clear heatmap overlay to redraw
-        if (tileOverlay != null)
+        if (tileOverlay != null) {
             tileOverlay.clearTileCache();
+        }
 
         if (googleMap != null && tileOverlay == null)
             tileOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
 
         list.clear();
+    }
+
+    @Override
+    public void insertLabels(JSONObject response) throws JSONException {
+        JSONArray dataJsonArray = response.getJSONArray("lounges");
+        JSONObject data;
+        double lat, lng;
+        String name;
+        Bitmap bitmap;
+
+        IconGenerator iconGenerator = new IconGenerator(this);
+
+        for (int i = 0; i < dataJsonArray.length(); i++) {
+            data = dataJsonArray.getJSONObject(i);
+            lat = data.getDouble("lat");
+            lng = data.getDouble("lng");
+            name = data.getString("name");
+            bitmap = iconGenerator.makeIcon(name);
+            googleMap.addMarker(new MarkerOptions()
+                                            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                                            .position(new LatLng(lat,lng))
+                                            .anchor(0.5f,1.3f));
+        }
     }
 }

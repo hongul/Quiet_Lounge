@@ -4,7 +4,7 @@ package com.example.hongear.quiet_lounge03;
  * Created by kyleoneill on 11/7/16.
  */
 
-public class LocationInfo {
+class LocationInfo {
 
     private double lat;
     private double lng;

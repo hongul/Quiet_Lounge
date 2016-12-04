@@ -2,6 +2,8 @@ package com.example.hongear.quiet_lounge03;
 
 import android.app.Activity;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.view.View;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -20,18 +22,19 @@ import java.text.DecimalFormat;
  * Created by kyleoneill on 11/17/16.
  */
 
-public class JsonRequestFactory {
+class JsonRequestFactory {
 
     private final static String GET_URL = "http://quietlounge.us-east-1.elasticbeanstalk.com/getLoungeData";
     private final static String POST_URL = "http://quietlounge.us-east-1.elasticbeanstalk.com/inputSound";
-    private final Activity activity;
+    private final Activity activity;              // Placeholder for context
     private final TypedArray loungeIds;           // Resource IDs for views that hold the sound data
+    private final TypedArray loungeColors;        // Resource IDs for views that show colors if lounges
 
-    public JsonRequestFactory(Activity activity) {
+    JsonRequestFactory(Activity activity) {
         this.activity = activity;
 
-        // Get Lounge Ids
-        loungeIds = activity.getResources().obtainTypedArray(R.array.LoungeDataIds);
+        loungeIds = activity.getResources().obtainTypedArray(R.array.LoungeDataIds);      // Get Lounge Ids
+        loungeColors = activity.getResources().obtainTypedArray(R.array.LoungeColorIds);
     }
 
     /**
@@ -41,18 +44,13 @@ public class JsonRequestFactory {
      * @param local - The location info to be sent to the server
      * @return The JsonObjectRequest with the location info
      */
-    public JsonObjectRequest insertSoundData(final LocationInfo local) {
+    JsonObjectRequest insertSoundData(final LocationInfo local) {
 
         return new JsonObjectRequest(Request.Method.POST, POST_URL, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            @SuppressWarnings("UnusedAssignment") String responseMsg = response.getString("msg");
-//                            Log.d("API Response", "Response Message: " + responseMsg);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -85,9 +83,10 @@ public class JsonRequestFactory {
      * Creates a GET request to send to the web server. The request returns the latest update
      * sound levels for the tracked lounges
      *
+     * @param main - Is it the MainActivity or not
      * @return The JsonObjectRequest with updated sound data
      */
-    public JsonObjectRequest getLoungeData(final boolean main) {
+    JsonObjectRequest getLoungeData(final boolean main) {
         return new JsonObjectRequest(Request.Method.GET, GET_URL,
                 null, new Response.Listener<JSONObject>() {
             @Override
@@ -102,7 +101,6 @@ public class JsonRequestFactory {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         }, new Response.ErrorListener() {
             @Override
@@ -112,22 +110,88 @@ public class JsonRequestFactory {
         });
     }
 
+    /**
+     * Creates an identical GET request to getLoungeData(). Used to fill up lounge labels
+     * in the heat map
+     *
+     * @return The JsonObjectRequest with coordinates and label names
+     */
+    JsonObjectRequest getLoungeCoords() {
+        return new JsonObjectRequest(Request.Method.GET, GET_URL,
+                null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                HeatMapUpdaterInterface heatMapUpdaterInterface = (HeatMapUpdaterInterface) activity;
+                try {
+                    heatMapUpdaterInterface.insertLabels(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+    }
+
+    /**
+     * Changes the main pages data. This includes the sound levels and the color view
+     *
+     * @param response - GET request response
+     * @throws JSONException
+     */
     private void updateSoundLevels(JSONObject response) throws JSONException {
         JSONArray dataJsonArray = response.getJSONArray("lounges");
         JSONObject data;
         TextView textView;
-        String soundLevel;
-        DecimalFormat df = new DecimalFormat("#.###");
+        View view;
+        double soundLevel;
+        DecimalFormat df = new DecimalFormat("#.000");
+
 
         for (int i = 0; i < dataJsonArray.length(); i++) {
             data = dataJsonArray.getJSONObject(i);
             textView = (TextView) activity.findViewById(loungeIds.getResourceId(i,0));
-            soundLevel = df.format(data.getDouble("lastSoundLevel"));
-            textView.setText(soundLevel);
+            view = activity.findViewById(loungeColors.getResourceId(i,0));
+            soundLevel = data.getDouble("lastSoundLevel");
+            textView.setText(df.format(soundLevel) + " dB");
+            updateLabelColors(view, soundLevel);
         }
     }
 
-    public interface HeatMapUpdaterInterface {
+    /**
+     * Changes the background color of the specified view based on the sound level
+     *
+     * @param v - The view
+     * @param sound - The sound level
+     */
+    private void updateLabelColors(View v, double sound) {
+        String[] colors = activity.getResources().getStringArray(R.array.LabelColors);
+
+        if (sound <= 30) {
+            v.setBackgroundColor(Color.parseColor(colors[0]));
+        } else if (sound > 30 && sound <= 40) {
+            v.setBackgroundColor(Color.parseColor(colors[1]));
+        } else if (sound > 40 && sound <= 50) {
+            v.setBackgroundColor(Color.parseColor(colors[2]));
+        } else if (sound > 50 && sound <= 60) {
+            v.setBackgroundColor(Color.parseColor(colors[3]));
+        } else if (sound > 60 && sound <= 70) {
+            v.setBackgroundColor(Color.parseColor(colors[4]));
+        } else if (sound > 70 && sound <= 80) {
+            v.setBackgroundColor(Color.parseColor(colors[5]));
+        } else if (sound > 80) {
+            v.setBackgroundColor(Color.parseColor(colors[6]));
+        }
+    }
+
+    /**
+     * Interface for HeatMapFullscreenActivity to require these methods
+     */
+    interface HeatMapUpdaterInterface {
         void updateHeatMap(JSONObject response) throws JSONException;
+        void insertLabels(JSONObject response) throws JSONException;
     }
 }

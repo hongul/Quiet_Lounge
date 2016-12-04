@@ -54,7 +54,6 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     private Marker mTech;
     private Marker mStudent;
     private Marker mWachman;
-    private static Marker[] mArray;
 
     private static final LatLng ALTER = new LatLng(39.9802845, -75.158018);
     private static final LatLng PALEY = new LatLng(39.9811121,-75.1550743);
@@ -62,7 +61,6 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     private static final LatLng TECH = new LatLng(39.9799703, -75.1533075);
     private static final LatLng STUDENT = new LatLng(39.9795807, -75.1552941);
     private static final LatLng WACHMAN = new LatLng(39.9809148,-75.1569864);
-    private static  LatLng[] LOCATION;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -72,7 +70,6 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
     private LocationInfo locationInfo;      // Holds info about current phone location and sound level
     private RequestQueue queue;             // Sends the HTTP requests to the web server
     private JsonRequestFactory jsonRequestFactory;
-    private int timeBetweenRequests;
 
 
     Location mLastLocation;
@@ -85,11 +82,11 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
         setContentView(R.layout.activity_heat_map);
 
         // Fill in array of makers
-        mArray = new Marker[]{mSerc, mTech, mStudent, mPaley, mWachman};
-        LOCATION = new LatLng[]{SERC, TECH, STUDENT, PALEY, WACHMAN};
+        Marker[] mArray = new Marker[]{mSerc, mTech, mStudent, mPaley, mWachman};
+        LatLng[] LOCATION = new LatLng[]{SERC, TECH, STUDENT, PALEY, WACHMAN};
 
         // Access resources to get static value
-        timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
+        int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequestsMap);
 
         // Set up queue to send HTTP request
         queue = Volley.newRequestQueue(this);
@@ -302,13 +299,11 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mGoogleApiClient.connect();
         Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "HeatMap Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
+                Action.TYPE_VIEW,
+                "HeatMap Page",
                 // make sure this auto-generated web page URL is correct.
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
                 Uri.parse("android-app://com.example.hongear.quiet_lounge03/http/host/path")
         );
         AppIndex.AppIndexApi.start(mGoogleApiClient, viewAction);
@@ -321,13 +316,11 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback,
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "HeatMap Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
+                Action.TYPE_VIEW,
+                "HeatMap Page",
                 // make sure this auto-generated web page URL is correct.
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
                 Uri.parse("android-app://com.example.hongear.quiet_lounge03/http/host/path")
         );
         AppIndex.AppIndexApi.end(mGoogleApiClient, viewAction);

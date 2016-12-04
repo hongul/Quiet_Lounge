@@ -8,6 +8,15 @@
         <item>@id/library_data</item>
         <item>@id/wachman_data</item>
     </integer-array>
-    <integer name="TimeBetweenRequests">5000</integer>
+    <integer-array name="LoungeColorIds">
+        <item>@id/serc_color</item>
+        <item>@id/tech_color</item>
+        <item>@id/student_center_color</item>
+        <item>@id/library_color</item>
+        <item>@id/wachman_color</item>
+    </integer-array>
+    <integer name="TimeBetweenRequestsMain">2000</integer>
+    <integer name="TimeBetweenRequestsMap">8000</integer>
+
 
 </resources>

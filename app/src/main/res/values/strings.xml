@@ -8,4 +8,13 @@
     <string name="title_activity_heat_map_fullscreen">HeatMapFullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string-array name="LabelColors">
+        <item>#33FF00</item>
+        <item>#99FF33</item>
+        <item>#FFFF33</item>
+        <item>#FFCC00</item>
+        <item>#FF9900</item>
+        <item>#FF6600</item>
+        <item>#FF3300</item>
+    </string-array>
 </resources>

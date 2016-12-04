@@ -1,242 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@android:color/darker_gray">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:text="Quiet Space"
+        android:textSize="46sp"
+        android:fontFamily="cursive"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/wallet_dim_foreground_inverse_holo_dark" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.15"
+        android:layout_weight="0.1"
         android:orientation="horizontal">
+        <TextView
+            android:id="@+id/row1_tv1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="bottom|center"
+            android:text="Lounge"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="36sp"
+            android:fontFamily="cursive"
+            android:textStyle="normal|bold" />
 
-        <Button
-            android:id="@+id/refresh_btn_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="refreshData"
-            android:text="Refresh"
-            android:textSize="10sp" />
-
-        <Button
-            android:id="@+id/heatMap_btn_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="heatMap"
-            android:text="Heat Map"
-            android:textSize="10sp" />
-
-        <Button
-            android:id="@+id/addData_btn_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="addData"
-            android:text="Add Data"
-            android:textSize="10sp" />
-
+        <TextView
+            android:id="@+id/row1_tv2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.6"
+            android:gravity="bottom|center"
+            android:text="Noise Level"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="36sp"
+            android:fontFamily="cursive"
+            android:textStyle="normal|bold" />
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
 
-    <TableLayout
-        android:id="@+id/tableLayout1"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.85"
-        android:padding="10dp"
-        android:shrinkColumns="*"
-        android:stretchColumns="*">
+        android:layout_weight="0.1333"
+        android:orientation="horizontal">
 
-        <TableRow
-            android:id="@+id/row1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:weightSum="100">
+        <TextView
+            android:id="@+id/student_center_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="Student Center"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="20sp"
+            android:paddingLeft="10dp" />
 
-            <TextView
-                android:id="@+id/row1_tv1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#252728"
-                android:gravity="center"
-                android:text="Lounge"
-                android:textColor="#d6dce2"
-                android:textSize="30sp" />
+        <TextView
+            android:id="@+id/student_center_data"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="60 dB"
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/row1_tv2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#4b4e50"
-                android:gravity="center"
-                android:text="Noise Level"
-                android:textColor="#d8d9da"
-                android:textSize="30sp" />
+        <View
+            android:id="@+id/student_center_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/holo_green_dark" />
+    </LinearLayout>
 
-        </TableRow>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
 
-        <TableRow
-            android:id="@+id/row2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:weightSum="100">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1333"
+        android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/student_center_label"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#0004ff"
-                android:gravity="center"
-                android:text="Student Center"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
+        <TextView
+            android:id="@+id/library_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="Paley Library"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="20sp"
+            android:paddingLeft="10dp" />
 
-            <TextView
-                android:id="@+id/student_center_data"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#ff0d00"
-                android:gravity="center"
-                android:text="60 dB"
-                android:textColor="#000000"
-                android:textSize="20sp" />
+        <TextView
+            android:id="@+id/library_data"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="35 dB"
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
-        </TableRow>
+        <View
+            android:id="@+id/library_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/holo_green_dark" />
+    </LinearLayout>
 
-        <TableRow
-            android:id="@+id/row3"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:weightSum="100">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
 
-            <TextView
-                android:id="@+id/library_label"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#001aff"
-                android:gravity="center"
-                android:text="Paley Library"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1333"
+        android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/library_data"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#53e200"
-                android:gravity="center"
-                android:text="35 dB"
-                android:textColor="#000000"
-                android:textSize="20sp" />
+        <TextView
+            android:id="@+id/serc_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="SERC"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="20sp"
+            android:paddingLeft="10dp" />
 
-        </TableRow>
+        <TextView
+            android:id="@+id/serc_data"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="46 dB"
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
-        <TableRow
-            android:id="@+id/row4"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:weightSum="100">
+        <View
+            android:id="@+id/serc_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/holo_green_dark" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/serc_label"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#001aff"
-                android:gravity="center"
-                android:text="SERC"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
 
-            <TextView
-                android:id="@+id/serc_data"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#ff0400"
-                android:gravity="center"
-                android:text="46 dB"
-                android:textColor="#000000"
-                android:textSize="20sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1333"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/wachman_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="Wachman Hall"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="20sp"
+            android:paddingLeft="10dp" />
 
+        <TextView
+            android:id="@+id/wachman_data"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="32 dB"
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
-        </TableRow>
+        <View
+            android:id="@+id/wachman_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/holo_green_dark" />
+    </LinearLayout>
 
-        <TableRow
-            android:id="@+id/row5"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:weightSum="100">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
 
-            <TextView
-                android:id="@+id/wachman_label"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#001aff"
-                android:gravity="center"
-                android:text="Wachman Hall"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1333"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tech_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="Tech Center"
+            android:textColor="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:textSize="20sp"
+            android:paddingLeft="10dp" />
 
-            <TextView
-                android:id="@+id/wachman_data"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#53e200"
-                android:gravity="center"
-                android:text="32 dB"
-                android:textColor="#000000"
-                android:textSize="20sp" />
+        <TextView
+            android:id="@+id/tech_data"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="43 dB"
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
+        <View
+            android:id="@+id/tech_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/holo_green_dark" />
+    </LinearLayout>
 
-        </TableRow>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
 
-        <TableRow
-            android:id="@+id/row6"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:weightSum="100">
-
-            <TextView
-                android:id="@+id/tech_label"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#001aff"
-                android:gravity="center"
-                android:text="Tech Center"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/tech_data"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:background="#00fa00"
-                android:gravity="center"
-                android:text="43 dB"
-                android:textColor="#000000"
-                android:textSize="20sp" />
-
-
-        </TableRow>
-
-    </TableLayout>
+    <Button
+        android:id="@+id/heatMap_btn_id"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:layout_margin="-3dp"
+        android:onClick="heatMap"
+        android:text="Heat Map"
+        android:elevation="0dp"
+        android:textSize="24sp"
+        android:background="@color/wallet_dim_foreground_inverse_holo_dark"
+        android:textColor="@android:color/white"
+        android:fontFamily="cursive"
+        android:textStyle="normal|bold" />
 
 
 </LinearLayout>

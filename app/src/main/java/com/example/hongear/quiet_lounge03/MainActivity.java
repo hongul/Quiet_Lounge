@@ -34,7 +34,7 @@ import java.util.TimerTask;
  */
 public class MainActivity extends Activity {
 
-    //TODO Redo UI
+    //TODO Write More Tests!!!
     //TODO Create Batch Program for testing
 
     private static final double REFERENCE = 0.00002;
@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         // Access resources to get static value
-        int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequests);
+        int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequestsMain);
 
         // Set up queue to send HTTP request
         queue = Volley.newRequestQueue(this);
