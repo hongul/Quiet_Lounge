@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -49,7 +50,18 @@ class JsonRequestFactory {
         return new JsonObjectRequest(Request.Method.POST, POST_URL, null,
                 new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(final JSONObject response) {
+
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Toast.makeText(activity, response.getString("msg"), Toast.LENGTH_SHORT).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
 
                     }
                 }, new Response.ErrorListener() {
@@ -68,8 +80,8 @@ class JsonRequestFactory {
             public byte[] getBody() {
                 try {
                     String bodyStr;
-//                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + local.getSound();      // Use with phone
-                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + String.valueOf(Math.random() * 30); // Use only with emulator
+                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + local.getSound();      // Use with phone
+//                    bodyStr = "lat=" + local.getLat() + "&lng=" + local.getLng() + "&sound=" + String.valueOf(Math.random() * 30); // Use only with emulator
                     return bodyStr.getBytes("UTF-8");
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -149,7 +161,6 @@ class JsonRequestFactory {
         View view;
         double soundLevel;
         DecimalFormat df = new DecimalFormat("#.000");
-
 
         for (int i = 0; i < dataJsonArray.length(); i++) {
             data = dataJsonArray.getJSONObject(i);

@@ -88,6 +88,15 @@ public class MainActivity extends Activity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
             }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE}, 0);
+            }
         }
 
         // Code needed to get Latitude and Longitude coordinates of phone
@@ -108,9 +117,16 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 Log.d("Location", "Lat: " + locationInfo.getLat() + "Lng: " + locationInfo.getLng());
-                //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
                 queue.add(jsonRequestFactory.insertSoundData(locationInfo));
                 queue.add(jsonRequestFactory.getLoungeData(true));
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, String.valueOf(locationInfo.getSound()), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         };
 

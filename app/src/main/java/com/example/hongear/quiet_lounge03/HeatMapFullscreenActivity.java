@@ -1,20 +1,28 @@
 package com.example.hongear.quiet_lounge03;
 
+import android.*;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -120,6 +128,8 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         }
     };
 
+    private static final double REFERENCE = 0.00002;
+
     private TimerTask timerTask;
     private RequestQueue queue;             // Sends the HTTP requests to the web server
     private JsonRequestFactory jsonRequestFactory;
@@ -182,6 +192,28 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         fragmentTransaction.commit();
         mapFragment.getMapAsync(this);
 
+        // Get Permissions if they don't already have them
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED ||  ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Runtime permission requests - SDK 23 or higher
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, 0);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.requestPermissions(new String[]{android.Manifest.permission.ACCESS_NETWORK_STATE}, 0);
+            }
+        }
+
         // Code needed to get Latitude and Longitude coordinates of phone
         final LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         final LocationListener locationListener = setUpLocationListener();
@@ -200,9 +232,16 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
             @Override
             public void run() {
                 Log.d("Location", "Lat: " + locationInfo.getLat() + " Lng: " + locationInfo.getLng());
-                //                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
+                locationInfo.setSound(getNoiseLevel());                       // Use with Phone
                 queue.add(jsonRequestFactory.insertSoundData(locationInfo));
                 queue.add(jsonRequestFactory.getLoungeData(false));
+
+                HeatMapFullscreenActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(HeatMapFullscreenActivity.this, String.valueOf(locationInfo.getSound()), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         };
 
@@ -372,5 +411,52 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
                                             .position(new LatLng(lat,lng))
                                             .anchor(0.5f,1.3f));
         }
+    }
+
+    public double getNoiseLevel() {
+        String TAG = "DecibelTest";
+        Log.e(TAG, "start new recording process");
+        int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
+        //making the buffer bigger....
+        bufferSize = bufferSize * 4;
+        AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+
+        short data[] = new short[bufferSize];
+        double average = 0.0;
+        recorder.startRecording();
+        //recording data;
+        recorder.read(data, 0, bufferSize);
+
+        recorder.stop();
+        Log.e(TAG, "stop");
+        for (short s : data) {
+            if (s > 0) {
+                average += Math.abs(s);
+            } else {
+                bufferSize--;
+            }
+        }
+        //x=max;
+        double x = average / bufferSize;
+        Log.e(TAG, "" + x);
+        recorder.release();
+        Log.d(TAG, "getNoiseLevel() ");
+        double db;
+        if (x == 0) {
+            Log.e(TAG, "No valid noise level");
+        }
+        // calculating the pascal pressure based on the idea that the max amplitude (between 0 and 32767) is
+        // relative to the pressure
+        double pressure = x / 51805.5336; //the value 51805.5336 can be derived from asuming that x=32767=0.6325 Pa and x=1 = 0.00002 Pa (the reference value)
+        Log.d(TAG, "x=" + pressure + " Pa");
+        db = (20 * Math.log10(pressure / REFERENCE));
+        Log.d(TAG, "db=" + db);
+        if (db > 0) {
+            return db;
+        } else {
+            return 0;
+        }
+
     }
 }
