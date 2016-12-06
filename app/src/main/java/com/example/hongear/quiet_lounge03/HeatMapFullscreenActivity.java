@@ -191,7 +191,7 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         fragmentTransaction.add(R.id.map_view, mapFragment);
         fragmentTransaction.commit();
         mapFragment.getMapAsync(this);
-        
+
 
         // Get Permissions if they don't already have them
         if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
