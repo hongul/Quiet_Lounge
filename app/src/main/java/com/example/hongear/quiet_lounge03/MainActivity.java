@@ -44,11 +44,6 @@ public class MainActivity extends Activity {
     private JsonRequestFactory jsonRequestFactory;      // Generates HTTP request
     private TimerTask timerTask;
 
-//    @Override
-//    protected void attachBaseContext(Context newBase) {
-//        super.attachBaseContext(newBase);
-//    }
-
     @Override
     protected void onPause() {
         timerTask.cancel();
@@ -133,14 +128,6 @@ public class MainActivity extends Activity {
         timer.schedule(timerTask, new Date(), timeBetweenRequests);
     }
 
-    /**
-     * Listen for "Refresh" button click. Maunally refreshes the sound data
-     * @param view - The view object that was pressed
-     */
-    public void refreshData(View view) {
-        Log.d("get Data", "Pressed Refresh");
-        queue.add(jsonRequestFactory.getLoungeData(true));
-    }
 
     /**
      * Listen for "Refresh" button click. Opens up Heat Map Activity
@@ -197,7 +184,6 @@ public class MainActivity extends Activity {
         String TAG = "DecibelTest";
         Log.e(TAG, "start new recording process");
         int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
-        //making the buffer bigger....
         bufferSize = bufferSize * 4;
         AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
@@ -205,7 +191,6 @@ public class MainActivity extends Activity {
         short data[] = new short[bufferSize];
         double average = 0.0;
         recorder.startRecording();
-        //recording data;
         recorder.read(data, 0, bufferSize);
 
         recorder.stop();
@@ -217,7 +202,6 @@ public class MainActivity extends Activity {
                 bufferSize--;
             }
         }
-        //x=max;
         double x = average / bufferSize;
         Log.e(TAG, "" + x);
         recorder.release();
@@ -228,7 +212,8 @@ public class MainActivity extends Activity {
         }
         // calculating the pascal pressure based on the idea that the max amplitude (between 0 and 32767) is
         // relative to the pressure
-        double pressure = x / 51805.5336; //the value 51805.5336 can be derived from asuming that x=32767=0.6325 Pa and x=1 = 0.00002 Pa (the reference value)
+        //the value 51805.5336 can be derived from assuming that x=32767=0.6325 Pa and x=1 = 0.00002 Pa (the reference value)
+        double pressure = x / 51805.5336;
         Log.d(TAG, "x=" + pressure + " Pa");
         db = (20 * Math.log10(pressure / REFERENCE));
         Log.d(TAG, "db=" + db);

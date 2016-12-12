@@ -1,6 +1,5 @@
 package com.example.hongear.quiet_lounge03;
 
-import android.*;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -35,7 +34,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
@@ -82,7 +80,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         @Override
         public void run() {
             // Delayed removal of status and navigation bar
-
             // Note that some of these constants are new as of API 16 (Jelly Bean)
             // and API 19 (KitKat). It is safe to use them, as they are inlined
             // at compile-time and do nothing on earlier devices.
@@ -157,7 +154,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         setContentView(R.layout.activity_heat_map_fullscreen);
 
         mVisible = true;
-//        mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.map_view);
 
 
@@ -172,7 +168,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         // Access resources to get static value
         int timeBetweenRequests = getResources().getInteger(R.integer.TimeBetweenRequestsMap);
@@ -418,7 +413,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         String TAG = "DecibelTest";
         Log.e(TAG, "start new recording process");
         int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
-        //making the buffer bigger....
         bufferSize = bufferSize * 4;
         AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
@@ -426,7 +420,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         short data[] = new short[bufferSize];
         double average = 0.0;
         recorder.startRecording();
-        //recording data;
         recorder.read(data, 0, bufferSize);
 
         recorder.stop();
@@ -438,7 +431,6 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
                 bufferSize--;
             }
         }
-        //x=max;
         double x = average / bufferSize;
         Log.e(TAG, "" + x);
         recorder.release();
@@ -447,9 +439,7 @@ public class HeatMapFullscreenActivity extends Activity implements OnMapReadyCal
         if (x == 0) {
             Log.e(TAG, "No valid noise level");
         }
-        // calculating the pascal pressure based on the idea that the max amplitude (between 0 and 32767) is
-        // relative to the pressure
-        double pressure = x / 51805.5336; //the value 51805.5336 can be derived from asuming that x=32767=0.6325 Pa and x=1 = 0.00002 Pa (the reference value)
+        double pressure = x / 51805.5336;
         Log.d(TAG, "x=" + pressure + " Pa");
         db = (20 * Math.log10(pressure / REFERENCE));
         Log.d(TAG, "db=" + db);
